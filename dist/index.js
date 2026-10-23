@@ -103,23 +103,23 @@ h6[id] > a[href^="#"] {
   transition: opacity 200ms ease-in-out;
 }
 
-h1 {
+.center h1 {
   margin-top: 2.5rem;
 }
 
-h2 {
+.center h2 {
   margin-top: 2rem;
   margin-bottom: 0.75rem;
 }
 
-h3 {
+.center h3 {
   margin-top: 1.75rem;
   margin-bottom: 0.75rem;
 }
 
-h4,
-h5,
-h6 {
+.center h4,
+.center h5,
+.center h6 {
   margin-bottom: 0.75rem;
 }
 
