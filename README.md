@@ -4,17 +4,16 @@ Site-specific plugins for Quartz v5. The package is designed to be installed
 independently of Quartz's core source, so upstream updates do not overwrite the
 plugin implementation.
 
-## Install
+## Install from GitHub
 
-```sh
-pnpm add @linkcccp/quartz-site-features
-```
+This plugin is installed directly from its public GitHub repository. It is not
+published to npm, so you do not need an npm account or login.
 
-Add the package to `quartz.config.yaml`:
+Add the plugin to the `plugins` list in your Quartz `quartz.config.yaml`:
 
 ```yaml
 plugins:
-  - source: "@linkcccp/quartz-site-features"
+  - source: "github:linkcccp/quartz-site-features#main"
     enabled: true
     options:
       enabled: true
@@ -29,11 +28,22 @@ plugins:
       priority: 25
 ```
 
-Then register the installed npm plugin with Quartz:
+From the root of your Quartz site, install the configured GitHub plugin:
 
 ```sh
 npx quartz plugin install --from-config
 ```
+
+The `main` ref follows the latest commit on the plugin repository. To update an
+already installed copy, run:
+
+```sh
+npx quartz plugin install --latest
+```
+
+Quartz clones the public repository and builds the plugin locally. GitHub
+authentication is not required for this public repository. The build may
+download dependencies from npm, but does not require npm login.
 
 ## Features
 
@@ -50,15 +60,13 @@ The package consumes Quartz's provided `preact` and `sharp` dependencies as
 peer dependencies. Keep the Quartz theme and site configuration in your own
 site repository; the package intentionally does not patch Quartz core files.
 
-## Local development and publishing
+## Local development
 
-Build the distributable bundle with:
+Install dependencies, build the plugin, and run its checks:
 
 ```sh
+pnpm install
 pnpm run build
+pnpm run test
+pnpm run typecheck
 ```
-
-The npm tarball contains the prebuilt `dist/` bundle, package metadata, README,
-and license.
-Before publishing, ensure the `@linkcccp` npm scope is controlled by the
-publisher and run `npm pack --dry-run` to review the package contents.
