@@ -1,0 +1,67 @@
+{
+  "name": "@linkcccp/quartz-site-features",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Stale-note notices, PWA support, and Fluent 2 styles for Quartz v5",
+  "license": "MIT",
+  "keywords": [
+    "quartz",
+    "quartz-plugin",
+    "digital-garden",
+    "pwa",
+    "stale-notes",
+    "fluent-2"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE.txt"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./components": "./dist/components.js"
+  },
+  "scripts": {
+    "build": "esbuild src/index.ts src/components.tsx --bundle --platform=node --format=esm --jsx=automatic --jsx-import-source=preact --external:preact --external:preact/* --external:sharp --outdir=dist",
+    "test": "tsx --test src/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build && pnpm run test && pnpm run typecheck"
+  },
+  "devDependencies": {
+    "@quartz-community/types": "^1.0.0",
+    "@types/node": "^22.15.30",
+    "esbuild": "^0.28.2",
+    "preact": "^10.28.2",
+    "sharp": "^0.35.4",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  },
+  "peerDependencies": {
+    "@quartz-community/types": "^1.0.0",
+    "preact": "^10.28.2",
+    "sharp": "^0.35.4"
+  },
+  "quartz": {
+    "name": "linkcccp-site",
+    "displayName": "LinkCCCP Site Features",
+    "description": "Stale-note notice, PWA support, and site theme CSS",
+    "version": "1.0.0",
+    "category": [
+      "emitter",
+      "component"
+    ],
+    "components": {
+      "StaleNotice": {
+        "name": "StaleNotice",
+        "displayName": "Stale notice",
+        "description": "Shows a warning for explicitly or automatically stale notes",
+        "version": "1.0.0",
+        "defaultPosition": "beforeBody",
+        "defaultPriority": 25
+      }
+    }
+  }
+}
