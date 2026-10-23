@@ -188,13 +188,13 @@ iframe.pdf {
 
 .recent-notes .recent-notes-toggle > svg {
   flex: 0 0 auto;
-  margin-right: 0.5rem;
+  margin-left: 0.5rem;
   opacity: 0.8;
   transition: transform 300ms ease-in-out;
 }
 
 .recent-notes.collapsed > h3 .recent-notes-toggle > svg {
-  transform: rotate(-90deg);
+  transform: rotateZ(-90deg);
 }
 
 .recent-notes.collapsed > .recent-ul {
@@ -247,6 +247,16 @@ iframe.pdf {
   }
 }
 `;
+function getThemeStyles(recentNotesDesktopOnly = false) {
+  if (!recentNotesDesktopOnly) return themeStyles;
+  return `${themeStyles}
+@media all and (max-width: 800px) {
+  .recent-notes {
+    display: none;
+  }
+}
+`;
+}
 
 // src/pwa.ts
 import sharp from "sharp";
@@ -256,7 +266,8 @@ var defaultOptions = {
   shortName: "Garden",
   description: "A personal digital garden built with Quartz",
   themeColor: "#284b63",
-  backgroundColor: "#faf8f8"
+  backgroundColor: "#faf8f8",
+  recentNotesDesktopOnly: false
 };
 async function writeOutput(ctx, relativePath, content) {
   const outputPath = path.join(ctx.argv.output, relativePath);
@@ -291,7 +302,7 @@ workbox.precaching.precacheAndRoute([
 
 workbox.routing.registerRoute(
   ({ request }) => request.destination === 'document',
-  new workbox.strategies.NetworkFirst({ cacheName: 'pages' })
+  new workbox.strategies.NetworkFirst({ cacheName: 'quartz-pages-${buildTimestamp}' })
 );
 
 workbox.routing.registerRoute(
@@ -299,8 +310,8 @@ workbox.routing.registerRoute(
     request.destination === 'style' ||
     request.destination === 'script' ||
     request.destination === 'image',
-  new workbox.strategies.CacheFirst({
-    cacheName: 'static',
+  new workbox.strategies.StaleWhileRevalidate({
+    cacheName: 'quartz-static-${buildTimestamp}',
     plugins: [
       new workbox.expiration.ExpirationPlugin({
         maxEntries: 50,
@@ -327,7 +338,19 @@ workbox.routing.registerRoute(
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(Promise.all([
+    self.clients.claim(),
+    caches.keys().then((cacheNames) => Promise.all(
+      cacheNames
+        .filter((name) =>
+          name === 'pages' ||
+          name === 'static' ||
+          (name.startsWith('quartz-pages-') && name !== 'quartz-pages-${buildTimestamp}') ||
+          (name.startsWith('quartz-static-') && name !== 'quartz-static-${buildTimestamp}')
+        )
+        .map((name) => caches.delete(name))
+    ))
+  ]));
 });
 `;
 }
@@ -396,7 +419,12 @@ var LinkcccpPWA = (userOptions) => {
     },
     externalResources() {
       const resources = {
-        css: [{ content: themeStyles, inline: true }]
+        css: [
+          {
+            content: getThemeStyles(options.recentNotesDesktopOnly),
+            inline: true
+          }
+        ]
       };
       if (!options.enabled) return resources;
       return {
@@ -426,17 +454,19 @@ var LinkcccpPWA = (userOptions) => {
                   button.setAttribute("aria-expanded", "true");
 
                   const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                  icon.setAttribute("viewBox", "0 0 12 12");
-                  icon.setAttribute("width", "12");
-                  icon.setAttribute("height", "12");
+                  icon.setAttribute("viewBox", "5 8 14 8");
+                  icon.setAttribute("width", "14");
+                  icon.setAttribute("height", "14");
                   icon.setAttribute("aria-hidden", "true");
-                  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                  path.setAttribute("d", "M3 1.5 7.5 6 3 10.5");
-                  path.setAttribute("fill", "none");
-                  path.setAttribute("stroke", "currentColor");
-                  path.setAttribute("stroke-width", "1.5");
-                  icon.append(path);
-                  button.append(icon, document.createTextNode(heading.textContent.trim()));
+                  icon.setAttribute("fill", "none");
+                  icon.setAttribute("stroke", "currentColor");
+                  icon.setAttribute("stroke-width", "2");
+                  icon.setAttribute("stroke-linecap", "round");
+                  icon.setAttribute("stroke-linejoin", "round");
+                  const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+                  polyline.setAttribute("points", "6 9 12 15 18 9");
+                  icon.append(polyline);
+                  button.append(document.createTextNode(heading.textContent.trim()), icon);
                   heading.replaceChildren(button);
 
                   const toggle = () => {
@@ -465,6 +495,15 @@ var LinkcccpPWA = (userOptions) => {
                   navigator.serviceWorker
                     .register("/service-worker.js", { updateViaCache: "none" })
                     .then((registration) => {
+                      const checkForUpdates = () => {
+                        registration
+                          .update()
+                          .catch((error) => console.error("Service worker update check failed:", error));
+                      };
+                      checkForUpdates();
+                      document.addEventListener("visibilitychange", () => {
+                        if (document.visibilityState === "visible") checkForUpdates();
+                      });
                       registration.addEventListener("updatefound", () => {
                         const worker = registration.installing;
                         if (!worker) return;

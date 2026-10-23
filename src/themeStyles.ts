@@ -181,13 +181,13 @@ iframe.pdf {
 
 .recent-notes .recent-notes-toggle > svg {
   flex: 0 0 auto;
-  margin-right: 0.5rem;
+  margin-left: 0.5rem;
   opacity: 0.8;
   transition: transform 300ms ease-in-out;
 }
 
 .recent-notes.collapsed > h3 .recent-notes-toggle > svg {
-  transform: rotate(-90deg);
+  transform: rotateZ(-90deg);
 }
 
 .recent-notes.collapsed > .recent-ul {
@@ -240,3 +240,15 @@ iframe.pdf {
   }
 }
 `
+
+export function getThemeStyles(recentNotesDesktopOnly = false): string {
+  if (!recentNotesDesktopOnly) return themeStyles
+
+  return `${themeStyles}
+@media all and (max-width: 800px) {
+  .recent-notes {
+    display: none;
+  }
+}
+`
+}

@@ -58,6 +58,11 @@
       "emitter",
       "component"
     ],
+    "optionSchema": {
+      "recentNotesDesktopOnly": {
+        "type": "boolean"
+      }
+    },
     "components": {
       "StaleNotice": {
         "name": "StaleNotice",
