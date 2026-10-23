@@ -25,10 +25,6 @@
     "README.md",
     "LICENSE.txt"
   ],
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://npm.pkg.github.com"
-  },
   "exports": {
     ".": "./dist/index.js",
     "./components": "./dist/components.js"
