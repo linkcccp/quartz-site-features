@@ -41,9 +41,9 @@ already installed copy, run:
 npx quartz plugin install --latest
 ```
 
-Quartz clones the public repository and builds the plugin locally. GitHub
-authentication is not required for this public repository. The build may
-download dependencies from npm, but does not require npm login.
+Quartz clones the public repository, including its prebuilt `dist/` bundle.
+GitHub authentication is not required for this public repository, and the
+plugin installation does not need to build the plugin locally.
 
 ## Features
 
@@ -70,3 +70,6 @@ pnpm run build
 pnpm run test
 pnpm run typecheck
 ```
+
+After changing plugin source, rebuild `dist/` and commit the generated bundle
+with the source changes so Quartz installations use the matching version.
