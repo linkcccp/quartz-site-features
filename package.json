@@ -4,6 +4,14 @@
   "type": "module",
   "description": "Stale-note notices, PWA support, and Fluent 2 styles for Quartz v5",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linkcccp/quartz-site-features.git"
+  },
+  "homepage": "https://github.com/linkcccp/quartz-site-features",
+  "bugs": {
+    "url": "https://github.com/linkcccp/quartz-site-features/issues"
+  },
   "keywords": [
     "quartz",
     "quartz-plugin",
@@ -18,7 +26,8 @@
     "LICENSE.txt"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://npm.pkg.github.com"
   },
   "exports": {
     ".": "./dist/index.js",

@@ -4,16 +4,31 @@ Site-specific plugins for Quartz v5. The package is designed to be installed
 independently of Quartz's core source, so upstream updates do not overwrite the
 plugin implementation.
 
-## Install from GitHub
+## Install from GitHub Packages
 
-This plugin is installed directly from its public GitHub repository. It is not
-published to npm, so you do not need an npm account or login.
+This project publishes to GitHub Packages rather than npmjs.org. Configure the
+GitHub npm registry for the `@linkcccp` scope in your Quartz project's `.npmrc`:
+
+```ini
+@linkcccp:registry=https://npm.pkg.github.com
+```
+
+Install it from the Quartz project root:
+
+```sh
+pnpm add @linkcccp/quartz-site-features
+```
+
+GitHub Packages may require a GitHub classic personal access token with
+`read:packages` permission to install packages, depending on package visibility
+and the client environment. Do not commit the token; use an environment
+variable or user-level npm configuration.
 
 Add the plugin to the `plugins` list in your Quartz `quartz.config.yaml`:
 
 ```yaml
 plugins:
-  - source: "github:linkcccp/quartz-site-features#main"
+  - source: "@linkcccp/quartz-site-features"
     enabled: true
     options:
       enabled: true
@@ -28,22 +43,20 @@ plugins:
       priority: 25
 ```
 
-From the root of your Quartz site, install the configured GitHub plugin:
+From the root of your Quartz site, register the configured package with Quartz:
 
 ```sh
 npx quartz plugin install --from-config
 ```
 
-The `main` ref follows the latest commit on the plugin repository. To update an
-already installed copy, run:
+To update to the latest published package version, run:
 
 ```sh
-npx quartz plugin install --latest
+pnpm update @linkcccp/quartz-site-features
 ```
 
-Quartz clones the public repository and builds the plugin locally. GitHub
-authentication is not required for this public repository. The build may
-download dependencies from npm, but does not require npm login.
+The GitHub repository remains the source of truth. This package is a versioned
+distribution and does not automatically follow the repository's `main` branch.
 
 ## Features
 
@@ -70,3 +83,6 @@ pnpm run build
 pnpm run test
 pnpm run typecheck
 ```
+
+The GitHub Actions workflow publishes the built package to GitHub Packages.
+Before publishing a new release, update the version in `package.json`.
