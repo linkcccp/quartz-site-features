@@ -115,19 +115,19 @@ html {
 .page > #quartz-body > .center > .page-header,
 .page > #quartz-body > .center > article.popover-hint {
   box-sizing: border-box;
-  border: 1px solid var(--fluent-stroke-2);
-  border-radius: var(--radius-large);
-  background: var(--fluent-surface-1);
-  box-shadow: var(--fluent-shadow-2);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .page > #quartz-body > .center > .page-header {
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1rem;
+  padding: 1.25rem 0;
+  margin-bottom: 1.5rem;
 }
 
 .page > #quartz-body > .center > article.popover-hint {
-  padding: 1.5rem 2rem;
+  padding: 0;
 }
 
 .page > #quartz-body .sidebar .explorer,
@@ -136,20 +136,21 @@ html {
 .page > #quartz-body .sidebar .graph,
 .page > #quartz-body .sidebar .backlinks {
   box-sizing: border-box;
-  padding: 0.875rem;
-  border: 1px solid var(--fluent-stroke-2);
-  border-radius: var(--radius-large);
-  background: var(--fluent-surface-1);
-  box-shadow: var(--fluent-shadow-2);
+  margin-bottom: 1.25rem;
+  padding: 0.5rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .page > #quartz-body .sidebar button:not(.recent-notes-toggle),
 .page > #quartz-body .center button,
 .page > #quartz-body .graph button {
   min-height: 2.25rem;
-  border: 1px solid var(--fluent-stroke-1);
-  border-radius: var(--radius-medium);
-  background: var(--fluent-surface-2);
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
   color: var(--darkgray);
   font: inherit;
   transition:
@@ -161,8 +162,8 @@ html {
 .page > #quartz-body .sidebar button:not(.recent-notes-toggle):hover,
 .page > #quartz-body .center button:hover,
 .page > #quartz-body .graph button:hover {
-  border-color: var(--fluent-stroke-1);
-  background: var(--fluent-surface-3);
+  border-color: transparent;
+  background: var(--fluent-surface-2);
 }
 
 .page > #quartz-body .sidebar button:not(.recent-notes-toggle):active,
@@ -188,9 +189,10 @@ html {
   box-sizing: border-box;
   min-height: 2.5rem;
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--fluent-stroke-1);
-  border-radius: var(--radius-medium);
-  background: var(--fluent-surface-1);
+  border: 0;
+  border-bottom: 1px solid var(--fluent-stroke-1);
+  border-radius: 0;
+  background: transparent;
   color: var(--darkgray);
   font: inherit;
 }
@@ -218,8 +220,7 @@ html {
 .page > #quartz-body .sidebar .recent-ul a:hover,
 .page > #quartz-body .sidebar .explorer a:hover,
 .page > #quartz-body .sidebar .toc a:hover {
-  border-radius: var(--radius-small);
-  background: var(--fluent-surface-2);
+  background: transparent;
   text-decoration: none;
 }
 
@@ -250,15 +251,23 @@ html {
 
 .page > #quartz-body .center blockquote:not(.callout) {
   padding: 0.75rem 1rem;
-  border: 1px solid var(--fluent-stroke-2);
+  border: 0;
   border-left: 3px solid var(--fluent-brand);
-  border-radius: var(--radius-medium);
-  background: var(--fluent-surface-2);
+  border-radius: 0;
+  background: transparent;
 }
 
 .page > #quartz-body .center .callout {
-  border-radius: var(--radius-large);
-  box-shadow: var(--fluent-shadow-2);
+  border: 0;
+  border-left: 3px solid var(--fluent-brand);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.page > #quartz-body .center .callout > .callout-title,
+.page > #quartz-body .center .callout > .callout-content {
+  background: transparent;
 }
 
 .page > #quartz-body .center .callout-title {
@@ -267,21 +276,22 @@ html {
 }
 
 .page > #quartz-body .center table {
-  border: 1px solid var(--fluent-stroke-2);
-  border-collapse: separate;
+  border: 0;
+  border-collapse: collapse;
   border-spacing: 0;
-  border-radius: var(--radius-medium);
-  background: var(--fluent-surface-1);
+  border-radius: 0;
+  background: transparent;
 }
 
 .page > #quartz-body .center th,
 .page > #quartz-body .center td {
   padding: 0.625rem 0.75rem;
+  border: 0;
   border-bottom: 1px solid var(--fluent-stroke-2);
 }
 
 .page > #quartz-body .center th {
-  background: var(--fluent-surface-2);
+  background: transparent;
   font-weight: 600;
 }
 
@@ -290,9 +300,9 @@ html {
 }
 
 .page > #quartz-body .center pre {
-  border: 1px solid var(--fluent-stroke-2);
-  border-radius: var(--radius-large);
-  box-shadow: var(--fluent-shadow-2);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .page > #quartz-body .center code {
@@ -403,8 +413,8 @@ figure[data-rehype-pretty-code-figure] figcaption {
 
 pre {
   border: none;
-  box-shadow: var(--elevation-2);
-  border-radius: var(--radius-medium);
+  box-shadow: none;
+  border-radius: 0;
 }
 
 pre code [data-highlighted-chars] {
@@ -435,7 +445,7 @@ iframe.pdf {
 }
 
 .callout {
-  border-radius: var(--radius-medium);
+  border-radius: 0;
 }
 
 .callout > .callout-content {
@@ -516,11 +526,11 @@ iframe.pdf {
 
 @media all and (max-width: 800px) {
   .page > #quartz-body > .center > .page-header {
-    padding: 1rem;
+    padding: 1rem 0;
   }
 
   .page > #quartz-body > .center > article.popover-hint {
-    padding: 1rem;
+    padding: 0;
   }
 
   .recent-notes > .recent-ul {

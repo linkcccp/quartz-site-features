@@ -82,6 +82,21 @@ test("theme CSS includes site tokens and RecentNotes collapse styles", () => {
   assert.match(themeStyles, /transform:\s*rotateZ\(-90deg\)/)
 })
 
+test("theme CSS uses open surfaces instead of framed cards", () => {
+  assert.match(
+    themeStyles,
+    /\.page > #quartz-body > \.center > article\.popover-hint\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*box-shadow:\s*none;/s,
+  )
+  assert.match(
+    themeStyles,
+    /\.page > #quartz-body \.sidebar \.explorer,[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;[\s\S]*?box-shadow:\s*none;/,
+  )
+  assert.match(
+    themeStyles,
+    /\.page > #quartz-body \.center \.callout\s*\{[^}]*box-shadow:\s*none;/s,
+  )
+})
+
 test("RecentNotes can be hidden on mobile without affecting desktop", () => {
   const desktopOnlyStyles = getThemeStyles(true)
   assert.match(desktopOnlyStyles, /@media all and \(max-width: 800px\)/)
