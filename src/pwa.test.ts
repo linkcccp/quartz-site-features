@@ -45,6 +45,10 @@ test("service worker excludes XML feeds and sitemap files from precache", () => 
 
 test("theme CSS includes site tokens and RecentNotes collapse styles", () => {
   assert.match(themeStyles, /--radius-medium:\s*4px/)
+  assert.match(themeStyles, /--secondary:\s*#0f6cbd/)
+  assert.match(themeStyles, /--secondary:\s*#479ef5/)
+  assert.match(themeStyles, /Segoe UI Variable/)
+  assert.match(themeStyles, /prefers-reduced-motion:\s*reduce/)
   assert.match(themeStyles, /\.recent-notes\.collapsed/)
   assert.match(themeStyles, /\.center h2\s*\{/)
   assert.doesNotMatch(themeStyles, /^h2\s*\{/m)

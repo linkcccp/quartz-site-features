@@ -56,8 +56,9 @@ plugin installation does not need to build the plugin locally.
   no-cache headers. Open tabs check for worker updates every 30 seconds while
   visible and reload after an update activates. It also enhances the official
   RecentNotes component with a collapsible, accessible heading.
-- **Theme CSS**: injects the site's Fluent 2 tokens and typography, spacing,
-  callout, code, media, and RecentNotes styles without patching Quartz core.
+- **Theme CSS**: applies a Fluent 2-inspired light/dark palette, Segoe UI
+  typography, adaptive surfaces, controls, tables, callouts, focus states, and
+  reduced-motion support without patching Quartz core.
 
 The package consumes Quartz's provided `preact` and `sharp` dependencies as
 peer dependencies. Keep the Quartz theme and site configuration in your own
