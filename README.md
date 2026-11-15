@@ -54,8 +54,10 @@ plugin installation does not need to build the plugin locally.
   Workbox service worker. Pages and the content index use network-first updates
   with precache fallback for offline access. The worker script is emitted with
   no-cache headers. Open tabs check for worker updates every 30 seconds while
-  visible and reload after an update activates. It also enhances the official
-  RecentNotes component with a collapsible, accessible heading.
+  visible and reload after an update activates. The homepage Open Graph and
+  Twitter URLs and canonical link are normalized to the configured site root.
+  It also enhances the official RecentNotes component with a collapsible,
+  accessible heading.
 - **Theme CSS**: applies a Fluent 2-inspired light/dark palette, Segoe UI
   typography, adaptive surfaces, controls, tables, callouts, focus states, and
   reduced-motion support without patching Quartz core.

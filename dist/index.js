@@ -599,6 +599,64 @@ async function writeOutput(ctx, relativePath, content) {
   await fs.writeFile(outputPath, content);
   return outputPath;
 }
+function escapeHtmlAttribute(value) {
+  return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+}
+function setHtmlAttribute(tag, name, value) {
+  const escapedValue = escapeHtmlAttribute(value);
+  const attribute = new RegExp(`\\b${name}=(["'])[^"']*\\1`, "i");
+  if (attribute.test(tag)) {
+    return tag.replace(attribute, `${name}="${escapedValue}"`);
+  }
+  return tag.replace(/\/?>$/, (close) => ` ${name}="${escapedValue}"${close}`);
+}
+function insertIntoHead(html, tag) {
+  const closingHead = /<\/head>/i;
+  if (!closingHead.test(html)) {
+    throw new Error("Cannot add homepage SEO metadata: generated HTML has no </head> element");
+  }
+  return html.replace(closingHead, `${tag}
+</head>`);
+}
+function normalizeHomepageSeo(html, canonicalUrl) {
+  const escapedUrl = escapeHtmlAttribute(canonicalUrl);
+  let result = html;
+  for (const property of ["og:url", "twitter:url"]) {
+    const metaTag = new RegExp(
+      `<meta\\b(?=[^>]*\\bproperty=["']${property}["'])[^>]*>`,
+      "i"
+    );
+    let found = false;
+    result = result.replace(metaTag, (tag) => {
+      found = true;
+      return setHtmlAttribute(tag, "content", canonicalUrl);
+    });
+    if (!found) {
+      result = insertIntoHead(
+        result,
+        `<meta property="${property}" content="${escapedUrl}"/>`
+      );
+    }
+  }
+  const canonicalTag = /<link\b(?=[^>]*\brel=["']canonical["'])[^>]*>/gi;
+  let canonicalFound = false;
+  result = result.replace(canonicalTag, (tag) => {
+    if (canonicalFound) return "";
+    canonicalFound = true;
+    return setHtmlAttribute(tag, "href", canonicalUrl);
+  });
+  if (!canonicalFound) {
+    result = insertIntoHead(result, `<link rel="canonical" href="${escapedUrl}"/>`);
+  }
+  return result;
+}
+function getHomepageCanonicalUrl(baseUrl) {
+  const url = new URL(`https://${baseUrl}`);
+  url.pathname = `${url.pathname.replace(/\/+$/, "")}/`;
+  url.search = "";
+  url.hash = "";
+  return url.toString();
+}
 async function collectFiles(root, dir = root) {
   let entries;
   try {
@@ -764,6 +822,18 @@ var LinkcccpPWA = (userOptions) => {
           ].join("\n")
         )
       ]);
+      const baseUrl = ctx.cfg.configuration.baseUrl;
+      if (baseUrl) {
+        const homepagePath = path.join(ctx.argv.output, "index.html");
+        const html = await fs.readFile(homepagePath, "utf8");
+        const normalizedHtml = normalizeHomepageSeo(
+          html,
+          getHomepageCanonicalUrl(baseUrl)
+        );
+        if (normalizedHtml !== html) {
+          emitted.push(await writeOutput(ctx, "index.html", normalizedHtml));
+        }
+      }
       const files = await collectFiles(ctx.argv.output);
       const revisions = await generateRevisions(ctx.argv.output, files);
       const worker = await writeOutput(
