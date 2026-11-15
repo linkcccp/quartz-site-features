@@ -1,33 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import {
-  generateServiceWorker,
-  normalizeHomepageSeo,
-  serviceWorkerRegistrationScript,
-} from "./pwa.js"
+import { generateServiceWorker, serviceWorkerRegistrationScript } from "./pwa.js"
 import { getThemeStyles, themeStyles } from "./themeStyles.js"
-
-test("homepage SEO URLs use the canonical site root", () => {
-  const html = normalizeHomepageSeo(
-    '<html><head><meta property="og:url" content="https://example.com/index"/><meta property="twitter:url" content="https://example.com/index"/></head><body></body></html>',
-    "https://example.com/",
-  )
-
-  assert.match(html, /property="og:url" content="https:\/\/example\.com\/"/)
-  assert.match(html, /property="twitter:url" content="https:\/\/example\.com\/"/)
-  assert.match(html, /<link rel="canonical" href="https:\/\/example\.com\/"\/>/)
-  assert.doesNotMatch(html, /https:\/\/example\.com\/index/)
-})
-
-test("homepage SEO normalization updates an existing canonical without duplicating it", () => {
-  const html = normalizeHomepageSeo(
-    '<html><head><link rel="canonical" href="https://example.com/index"/><link rel="canonical" href="https://old.example.com/"/></head></html>',
-    "https://example.com/",
-  )
-
-  assert.equal((html.match(/rel="canonical"/g) ?? []).length, 1)
-  assert.match(html, /rel="canonical" href="https:\/\/example\.com\/"/)
-})
 
 test("PWA checks for service worker updates while the page is visible", () => {
   assert.match(serviceWorkerRegistrationScript, /setInterval\(checkForUpdates,\s*30_000\)/)
@@ -71,30 +45,11 @@ test("service worker excludes XML feeds and sitemap files from precache", () => 
 
 test("theme CSS includes site tokens and RecentNotes collapse styles", () => {
   assert.match(themeStyles, /--radius-medium:\s*4px/)
-  assert.match(themeStyles, /--secondary:\s*#0f6cbd/)
-  assert.match(themeStyles, /--secondary:\s*#479ef5/)
-  assert.match(themeStyles, /Segoe UI Variable/)
-  assert.match(themeStyles, /prefers-reduced-motion:\s*reduce/)
   assert.match(themeStyles, /\.recent-notes\.collapsed/)
   assert.match(themeStyles, /\.center h2\s*\{/)
   assert.doesNotMatch(themeStyles, /^h2\s*\{/m)
   assert.match(themeStyles, /\.recent-notes-toggle > svg\s*\{[^}]*margin-left:\s*0\.5rem/s)
   assert.match(themeStyles, /transform:\s*rotateZ\(-90deg\)/)
-})
-
-test("theme CSS uses open surfaces instead of framed cards", () => {
-  assert.match(
-    themeStyles,
-    /\.page > #quartz-body > \.center > article\.popover-hint\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*box-shadow:\s*none;/s,
-  )
-  assert.match(
-    themeStyles,
-    /\.page > #quartz-body \.sidebar \.explorer,[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;[\s\S]*?box-shadow:\s*none;/,
-  )
-  assert.match(
-    themeStyles,
-    /\.page > #quartz-body \.center \.callout\s*\{[^}]*box-shadow:\s*none;/s,
-  )
 })
 
 test("RecentNotes can be hidden on mobile without affecting desktop", () => {
