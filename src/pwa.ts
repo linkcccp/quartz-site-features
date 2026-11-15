@@ -27,6 +27,36 @@ const defaultOptions: PWAOptions = {
   recentNotesDesktopOnly: false,
 }
 
+export const serviceWorkerRegistrationScript = `
+if ("serviceWorker" in navigator) {
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
+  });
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/service-worker.js", { updateViaCache: "none" })
+      .then((registration) => {
+        const checkForUpdates = () => {
+          if (document.visibilityState !== "visible") return;
+          registration
+            .update()
+            .catch((error) => console.error("Service worker update check failed:", error));
+        };
+        checkForUpdates();
+        window.setInterval(checkForUpdates, 30_000);
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") checkForUpdates();
+        });
+      })
+      .catch((error) => console.error("Service worker registration failed:", error));
+  });
+}
+`
+
 async function writeOutput(ctx: BuildCtx, relativePath: string, content: string | Buffer) {
   const outputPath = path.join(ctx.argv.output, relativePath)
   await fs.mkdir(path.dirname(outputPath), { recursive: true })
@@ -35,7 +65,20 @@ async function writeOutput(ctx: BuildCtx, relativePath: string, content: string 
 }
 
 async function collectFiles(root: string, dir = root): Promise<string[]> {
-  const entries = await fs.readdir(dir, { withFileTypes: true })
+  let entries
+  try {
+    entries = await fs.readdir(dir, { withFileTypes: true })
+  } catch (error) {
+    if (
+      dir !== root &&
+      error instanceof Error &&
+      "code" in error &&
+      error.code === "ENOENT"
+    ) {
+      return []
+    }
+    throw error
+  }
   const nested = await Promise.all(
     entries.map(async (entry) => {
       const fullPath = path.join(dir, entry.name)
@@ -55,21 +98,32 @@ export function generateServiceWorker(
 ): string {
   const buildTimestamp = new Date().toISOString()
   const precacheFiles = staticFiles
-    .filter((file) => !/sitemap|robots|service-worker\.js|\.xml$/i.test(file))
+    .filter(
+      (file) => file !== "/_headers" && !/sitemap|robots|service-worker\.js|\.xml$/i.test(file),
+    )
     .map((url) => ({ url, revision: revisions.get(url) ?? buildTimestamp }))
 
   return `importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.0.0/workbox-sw.js');
 // Build: ${buildTimestamp}
 
+workbox.routing.registerRoute(
+  ({ request, url }) =>
+    request.destination === 'document' ||
+    url.pathname.endsWith('/static/contentIndex.json'),
+  new workbox.strategies.NetworkFirst({
+    cacheName: 'quartz-dynamic-${buildTimestamp}',
+    plugins: [{
+      async handlerDidError({ request }) {
+        return workbox.precaching.matchPrecache(request);
+      }
+    }]
+  })
+);
+
 workbox.precaching.precacheAndRoute([
   { url: '/', revision: ${JSON.stringify(buildTimestamp)} },
   ...${JSON.stringify(precacheFiles)}
 ]);
-
-workbox.routing.registerRoute(
-  ({ request }) => request.destination === 'document',
-  new workbox.strategies.NetworkFirst({ cacheName: 'quartz-pages-${buildTimestamp}' })
-);
 
 workbox.routing.registerRoute(
   ({ request }) =>
@@ -112,6 +166,7 @@ self.addEventListener('activate', (event) => {
           name === 'pages' ||
           name === 'static' ||
           (name.startsWith('quartz-pages-') && name !== 'quartz-pages-${buildTimestamp}') ||
+          (name.startsWith('quartz-dynamic-') && name !== 'quartz-dynamic-${buildTimestamp}') ||
           (name.startsWith('quartz-static-') && name !== 'quartz-static-${buildTimestamp}')
         )
         .map((name) => caches.delete(name))
@@ -177,6 +232,18 @@ const LinkcccpPWA: QuartzEmitterPlugin<Partial<PWAOptions>> = (userOptions) => {
             null,
             2,
           ),
+        ),
+        writeOutput(
+          ctx,
+          "_headers",
+          [
+            "/service-worker.js",
+            "  Cache-Control: no-cache, no-store, must-revalidate",
+            "",
+            "/static/contentIndex.json",
+            "  Cache-Control: no-cache, no-store, must-revalidate",
+            "",
+          ].join("\n"),
         ),
       ])
 
@@ -256,42 +323,7 @@ const LinkcccpPWA: QuartzEmitterPlugin<Partial<PWAOptions>> = (userOptions) => {
           {
             loadTime: "afterDOMReady",
             contentType: "inline",
-            script: `
-              if ("serviceWorker" in navigator) {
-                let refreshing = false;
-                navigator.serviceWorker.addEventListener("controllerchange", () => {
-                  if (!refreshing) {
-                    refreshing = true;
-                    window.location.reload();
-                  }
-                });
-                window.addEventListener("load", () => {
-                  navigator.serviceWorker
-                    .register("/service-worker.js", { updateViaCache: "none" })
-                    .then((registration) => {
-                      const checkForUpdates = () => {
-                        registration
-                          .update()
-                          .catch((error) => console.error("Service worker update check failed:", error));
-                      };
-                      checkForUpdates();
-                      document.addEventListener("visibilitychange", () => {
-                        if (document.visibilityState === "visible") checkForUpdates();
-                      });
-                      registration.addEventListener("updatefound", () => {
-                        const worker = registration.installing;
-                        if (!worker) return;
-                        worker.addEventListener("statechange", () => {
-                          if (worker.state === "installed" && navigator.serviceWorker.controller) {
-                            window.location.reload();
-                          }
-                        });
-                      });
-                    })
-                    .catch((error) => console.error("Service worker registration failed:", error));
-                });
-              }
-            `,
+            script: serviceWorkerRegistrationScript,
           },
         ],
         additionalHead: [

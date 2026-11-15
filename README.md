@@ -51,8 +51,11 @@ plugin installation does not need to build the plugin locally.
   shows it. When unset or `default`, the notice is shown after the configured
   threshold (180 days by default) since the last modified date.
 - **PWA emitter**: emits a web app manifest, resized icons, and a revisioned
-  Workbox service worker. It also registers the worker and enhances the
-  official RecentNotes component with a collapsible, accessible heading.
+  Workbox service worker. Pages and the content index use network-first updates
+  with precache fallback for offline access. The worker script is emitted with
+  no-cache headers. Open tabs check for worker updates every 30 seconds while
+  visible and reload after an update activates. It also enhances the official
+  RecentNotes component with a collapsible, accessible heading.
 - **Theme CSS**: injects the site's Fluent 2 tokens and typography, spacing,
   callout, code, media, and RecentNotes styles without patching Quartz core.
 
